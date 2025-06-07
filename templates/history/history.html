@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Historique - SecureWatermark{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card animate-slide-up">
+        <div class="card-header">
+            <h2><i class="fas fa-history"></i> HISTORIQUE</h2>
+        </div>
+        <div class="card-body">
+            <p class="card-description">
+                Consultez l'historique de vos opérations de chiffrement et déchiffrement. Toutes vos activités sont enregistrées de manière sécurisée.
+            </p>
+            
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} animate-fade-in">
+                    <i class="fas fa-info-circle"></i> {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if operations %}
+                <div class="history-filters animate-slide-up" style="animation-delay: 0.2s;">
+                    <div class="filter-group">
+                        <label for="filter-type">Filtrer par type:</label>
+                        <select id="filter-type" class="form-control">
+                            <option value="all">Tous les types</option>
+                            <option value="encrypt_message">Chiffrement de message</option>
+                            <option value="decrypt_message">Déchiffrement de message</option>
+                            <option value="encrypt_pdf">Chiffrement de PDF</option>
+                            <option value="decrypt_pdf">Déchiffrement de PDF</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="search-input">Rechercher:</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="search-input" class="form-control" placeholder="Rechercher...">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="history-table-container animate-slide-up" style="animation-delay: 0.4s;">
+                    <table class="history-table" id="history-table">
+                        <thead>
+                            <tr>
+                                <th>Type d'opération</th>
+                                <th>Fichier</th>
+                                <th>Date</th>
+                                <th>Taille</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for operation in operations %}
+                            <tr class="history-item" data-type="{{ operation.operation_type }}">
+                                <td>
+                                    {% if operation.operation_type == 'encrypt_message' %}
+                                        <span class="operation-badge encrypt"><i class="fas fa-lock"></i> Chiffrement de message</span>
+                                    {% elif operation.operation_type == 'decrypt_message' %}
+                                        <span class="operation-badge decrypt"><i class="fas fa-unlock"></i> Déchiffrement de message</span>
+                                    {% elif operation.operation_type == 'encrypt_pdf' %}
+                                        <span class="operation-badge encrypt"><i class="fas fa-file-pdf"></i> Chiffrement de PDF</span>
+                                    {% elif operation.operation_type == 'decrypt_pdf' %}
+                                        <span class="operation-badge decrypt"><i class="fas fa-file-image"></i> Déchiffrement de PDF</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ operation.file_name }}</td>
+                                <td>{{ operation.created_at|date:"d/m/Y H:i" }}</td>
+                                <td>{{ operation.file_size|filesizeformat }}</td>
+                                <td class="actions">
+                                    <a href="{% url 'history:detail' operation.id %}" class="btn-action view" title="Voir les détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if operation.result_file %}
+                                        {% if operation.operation_type == 'decrypt_pdf' %}
+                                            <a href="{% url 'steganography:download_pdf' operation.id %}" class="btn-action download" title="Télécharger le PDF">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'steganography:download_result' operation.id %}" class="btn-action download" title="Télécharger le résultat">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                        {% endif %}
+                                    {% endif %}
+                                    <a href="{% url 'history:delete' operation.id %}" class="btn-action delete" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-history animate-slide-up" style="animation-delay: 0.2s;">
+                    <div class="empty-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3>Aucune opération dans l'historique</h3>
+                    <p>Vous n'avez pas encore effectué d'opérations de chiffrement ou de déchiffrement.</p>
+                    <a href="{% url 'steganography:dashboard' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> Commencer une opération
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .history-filters {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        background-color: var(--secondary-color);
+        padding: 1.5rem;
+        border-radius: 10px;
+    }
+    
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .filter-group label {
+        color: var(--highlight-color);
+        font-weight: 500;
+    }
+    
+    .filter-group .form-control {
+        width: auto;
+        min-width: 200px;
+    }
+    
+    .history-table-container {
+        overflow-x: auto;
+        background-color: var(--secondary-color);
+        border-radius: 10px;
+        padding: 0.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .history-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .history-table th {
+        background-color: var(--primary-color);
+        color: var(--highlight-color);
+        padding: 1.2rem 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+        text-align: left;
+        border-bottom: 2px solid var(--highlight-color);
+    }
+    
+    .history-table td {
+        padding: 1.2rem 1rem;
+        border-bottom: 1px solid rgba(119, 141, 169, 0.2);
+        color: var(--text-color);
+    }
+    
+    .history-table tr:hover {
+        background-color: rgba(119, 141, 169, 0.1);
+    }
+    
+    .operation-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .operation-badge.encrypt {
+        background-color: rgba(46, 204, 113, 0.2);
+        color: #2ecc71;
+        border: 1px solid rgba(46, 204, 113, 0.3);
+    }
+    
+    .operation-badge.decrypt {
+        background-color: rgba(52, 152, 219, 0.2);
+        color: #3498db;
+        border: 1px solid rgba(52, 152, 219, 0.3);
+    }
+    
+    .operation-badge i {
+        margin-right: 0.5rem;
+    }
+    
+    .actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        color: var(--text-color);
+        background-color: var(--accent-color);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-3px);
+    }
+    
+    .btn-action.view:hover {
+        background-color: #3498db;
+        color: white;
+    }
+    
+    .btn-action.download:hover {
+        background-color: #2ecc71;
+        color: white;
+    }
+    
+    .btn-action.delete:hover {
+        background-color: #e74c3c;
+        color: white;
+    }
+    
+    .empty-history {
+        text-align: center;
+        padding: 3rem;
+    }
+    
+    .empty-icon {
+        font-size: 4rem;
+        color: var(--highlight-color);
+        margin-bottom: 1.5rem;
+        opacity: 0.7;
+    }
+    
+    .empty-history h3 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        color: var(--highlight-color);
+    }
+    
+    .empty-history p {
+        margin-bottom: 2rem;
+        color: var(--text-color);
+    }
+    
+    @media (max-width: 768px) {
+        .history-filters {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .filter-group {
+            width: 100%;
+        }
+        
+        .filter-group .form-control {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filtrage par type d'opération
+        const filterType = document.getElementById('filter-type');
+        const searchInput = document.getElementById('search-input');
+        const historyItems = document.querySelectorAll('.history-item');
+        
+        function filterItems() {
+            const typeFilter = filterType.value;
+            const searchFilter = searchInput.value.toLowerCase();
+            
+            historyItems.forEach(item => {
+                const type = item.getAttribute('data-type');
+                const text = item.textContent.toLowerCase();
+                
+                const matchesType = typeFilter === 'all' || type === typeFilter;
+                const matchesSearch = searchFilter === '' || text.includes(searchFilter);
+                
+                if (matchesType && matchesSearch) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        filterType.addEventListener('change', filterItems);
+        searchInput.addEventListener('input', filterItems);
+        
+        // Animation des lignes du tableau
+        historyItems.forEach((item, index) => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(20px)';
+            item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            item.style.transitionDelay = `${0.1 + index * 0.05}s`;
+            
+            setTimeout(() => {
+                item.style.opacity = '1';
+                item.style.transform = 'translateY(0)';
+            }, 100);
+        });
+        
+        // Animation des badges d'opération
+        const badges = document.querySelectorAll('.operation-badge');
+        badges.forEach(badge => {
+            badge.addEventListener('mouseover', function() {
+                this.style.transform = 'scale(1.05)';
+                this.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
+                this.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+            });
+            
+            badge.addEventListener('mouseout', function() {
+                this.style.transform = 'scale(1)';
+                this.style.boxShadow = 'none';
+            });
+        });
+        
+        // Animation des boutons d'action
+        const actionButtons = document.querySelectorAll('.btn-action');
+        actionButtons.forEach(button => {
+            button.addEventListener('mouseover', function() {
+                this.style.transform = 'translateY(-3px) rotate(5deg)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+            
+            button.addEventListener('mouseout', function() {
+                this.style.transform = 'translateY(0) rotate(0)';
+            });
+        });
+    });
+</script>
+{% endblock %}
+

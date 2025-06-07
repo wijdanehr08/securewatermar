@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Confirmation de suppression - SecureWatermark{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card animate-slide-up">
+        <div class="card-header">
+            <h2><i class="fas fa-trash"></i> CONFIRMATION DE SUPPRESSION</h2>
+        </div>
+        <div class="card-body">
+            <div class="delete-confirmation">
+                <div class="warning-icon animate-slide-up" style="animation-delay: 0.2s;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                
+                <div class="confirmation-message animate-slide-up" style="animation-delay: 0.3s;">
+                    <h3>Êtes-vous sûr de vouloir supprimer cette opération ?</h3>
+                    <p>Cette action est irréversible et supprimera définitivement l'opération ainsi que tous les fichiers associés.</p>
+                    
+                    <div class="operation-summary">
+                        <div class="summary-item">
+                            <span class="summary-label">Type d'opération:</span>
+                            <span class="summary-value">
+                                {% if operation.operation_type == 'encrypt_message' %}
+                                    <i class="fas fa-lock"></i> Chiffrement de message
+                                {% elif operation.operation_type == 'decrypt_message' %}
+                                    <i class="fas fa-unlock"></i> Déchiffrement de message
+                                {% elif operation.operation_type == 'encrypt_pdf' %}
+                                    <i class="fas fa-file-pdf"></i> Chiffrement de PDF
+                                {% elif operation.operation_type == 'decrypt_pdf' %}
+                                    <i class="fas fa-file-image"></i> Déchiffrement de PDF
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Fichier:</span>
+                            <span class="summary-value">{{ operation.file_name }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Date:</span>
+                            <span class="summary-value">{{ operation.created_at|date:"d/m/Y H:i" }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="confirmation-actions animate-slide-up" style="animation-delay: 0.4s;">
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Confirmer la suppression
+                        </button>
+                        <a href="{% url 'history:history' %}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Annuler
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .delete-confirmation {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 2rem;
+    }
+    
+    .warning-icon {
+        font-size: 5rem;
+        color: #e74c3c;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    
+    .confirmation-message h3 {
+        font-size: 1.8rem;
+        color: #e74c3c;
+        margin-bottom: 1rem;
+    }
+    
+    .confirmation-message p {
+        font-size: 1.1rem;
+        color: var(--text-color);
+        margin-bottom: 2rem;
+    }
+    
+    .operation-summary {
+        background-color: var(--secondary-color);
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-top: 1.5rem;
+        text-align: left;
+    }
+    
+    .summary-item {
+        display: flex;
+        margin-bottom: 0.8rem;
+    }
+    
+    .summary-label {
+        font-weight: 500;
+        color: var(--highlight-color);
+        width: 150px;
+    }
+    
+    .summary-value {
+        color: var(--text-color);
+    }
+    
+    .summary-value i {
+        margin-right: 0.5rem;
+    }
+    
+    .confirmation-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .btn-danger {
+        background-color: #e74c3c;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background-color: #c0392b;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animation du bouton de confirmation
+        const deleteButton = document.querySelector('.btn-danger');
+        deleteButton.addEventListener('mouseover', function() {
+            this.style.transform = 'scale(1.05)';
+            this.style.boxShadow = '0 10px 20px rgba(231, 76, 60, 0.3)';
+            this.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+        });
+        
+        deleteButton.addEventListener('mouseout', function() {
+            this.style.transform = 'scale(1)';
+            this.style.boxShadow = 'none';
+        });
+        
+        // Animation de l'icône d'avertissement
+        const warningIcon = document.querySelector('.warning-icon');
+        warningIcon.style.transform = 'scale(0)';
+        warningIcon.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        
+        setTimeout(() => {
+            warningIcon.style.transform = 'scale(1)';
+        }, 300);
+        
+        // Animation du résumé de l'opération
+        const operationSummary = document.querySelector('.operation-summary');
+        operationSummary.style.opacity = '0';
+        operationSummary.style.transform = 'translateY(20px)';
+        operationSummary.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        operationSummary.style.transitionDelay = '0.5s';
+        
+        setTimeout(() => {
+            operationSummary.style.opacity = '1';
+            operationSummary.style.transform = 'translateY(0)';
+        }, 100);
+    });
+</script>
+{% endblock %}
+

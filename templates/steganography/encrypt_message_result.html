@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Message chiffré - SecureWatermark{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card animate-slide-up">
+        <div class="card-header">
+            <h2><i class="fas fa-check-circle"></i> Message chiffré avec succès</h2>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-success">
+                <i class="fas fa-shield-alt"></i> Votre message a été chiffré et caché dans l'image avec succès.
+            </div>
+            
+            <div class="result-container">
+                <div class="result-item">
+                    <h3>Image originale</h3>
+                    <div class="image-container">
+                        <img src="data:image/png;base64,{{ original_image }}" alt="Image originale" class="result-image">
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <h3>Image avec message caché</h3>
+                    <div class="image-container">
+                        <img src="data:image/png;base64,{{ result_image }}" alt="Image avec message caché" class="result-image">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <h4><i class="fas fa-info-circle"></i> Informations importantes</h4>
+                <ul>
+                    <li>Le message est maintenant caché dans l'image et chiffré avec AES-256.</li>
+                    <li>Pour récupérer le message, vous aurez besoin du mot de passe utilisé pour le chiffrement.</li>
+                    <li>L'image peut être partagée comme n'importe quelle image normale.</li>
+                    <li>Aucune modification visible n'a été apportée à l'image.</li>
+                </ul>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="{{ download_url }}" class="btn btn-primary">
+                    <i class="fas fa-download"></i> Télécharger l'image
+                </a>
+                <a href="{% url 'steganography:encrypt_message' %}" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> Chiffrer un autre message
+                </a>
+                <a href="{% url 'steganography:dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> Retour au tableau de bord
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

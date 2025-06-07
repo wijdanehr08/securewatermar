@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Inscription - SecureWatermark{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-form-container animate-slide-up">
+        <div class="auth-logo">
+            <img src="{% static 'images/new_logo.png' %}" alt="SecureWatermark Logo">
+        </div>
+        <h1 class="auth-title">Inscription</h1>
+        
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} animate-fade-in">
+                <i class="fas fa-exclamation-circle"></i> {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <form method="post" class="form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="username" class="form-label">Nom d'utilisateur</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="Choisissez un nom d'utilisateur" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email" class="form-label">Email</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Votre adresse email" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password1" class="form-label">Mot de passe</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password1" name="password1" class="form-control" placeholder="Créez un mot de passe sécurisé" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password2" class="form-label">Confirmation du mot de passe</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password2" name="password2" class="form-control" placeholder="Confirmez votre mot de passe" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-user-plus"></i> Créer mon compte
+                </button>
+            </div>
+        </form>
+        
+        <div class="auth-separator">OU</div>
+        
+        <div class="auth-footer">
+            <p>Vous avez déjà un compte? <a href="{% url 'authentication:login' %}">Se connecter</a></p>
+        </div>
+    </div>
+    
+    <div class="auth-info animate-slide-up" style="animation-delay: 0.3s;">
+        <h2>Rejoignez l'élite de la sécurité</h2>
+        <p>En créant votre compte SecureWatermark, vous accédez à une technologie de pointe pour la protection de vos documents confidentiels. Notre solution combine stéganographie avancée et chiffrement AES pour une sécurité inégalée.</p>
+        <p style="margin-top: 1rem;">Vos données méritent la meilleure protection. Avec SecureWatermark, transformez n'importe quelle image en coffre-fort numérique invisible et impénétrable.</p>
+        <div style="margin-top: 2rem; text-align: center;">
+            <div style="font-size: 3rem; color: var(--highlight-color); margin-bottom: 1rem;">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <p style="font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">Sécurité de niveau premium</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animation des éléments au chargement
+        const animateElements = document.querySelectorAll('.animate-slide-up');
+        animateElements.forEach((element, index) => {
+            element.style.animationDelay = `${index * 0.2}s`;
+        });
+        
+        // Animation du bouton d'inscription
+        const registerButton = document.querySelector('button[type="submit"]');
+        registerButton.addEventListener('mouseover', function() {
+            this.style.transform = 'scale(1.05)';
+            this.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.3)';
+        });
+        
+        registerButton.addEventListener('mouseout', function() {
+            this.style.transform = 'scale(1)';
+            this.style.boxShadow = 'none';
+        });
+        
+        // Animation des champs de formulaire
+        const formInputs = document.querySelectorAll('.form-control');
+        formInputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateX(5px)';
+                this.parentElement.style.transition = 'transform 0.3s ease';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateX(0)';
+            });
+        });
+        
+        // Vérification de la correspondance des mots de passe
+        const password1 = document.getElementById('password1');
+        const password2 = document.getElementById('password2');
+        
+        function checkPasswordMatch() {
+            if (password1.value !== password2.value) {
+                password2.setCustomValidity("Les mots de passe ne correspondent pas");
+            } else {
+                password2.setCustomValidity("");
+            }
+        }
+        
+        password1.addEventListener('change', checkPasswordMatch);
+        password2.addEventListener('keyup', checkPasswordMatch);
+    });
+</script>
+{% endblock %}
+

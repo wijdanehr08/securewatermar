@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Tableau de bord - SecureWatermark{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card animate-slide-up">
+        <div class="card-header">
+            <h2><i class="fas fa-tachometer-alt"></i> TABLEAU DE BORD</h2>
+        </div>
+        <div class="card-body">
+            <p class="card-description">
+                Bienvenue dans votre espace sécurisé SecureWatermark. Choisissez une opération pour protéger ou récupérer vos données confidentielles.
+            </p>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-card animate-slide-up" style="animation-delay: 0.2s;">
+                    <i class="fas fa-lock"></i>
+                    <h3>Chiffrer un message</h3>
+                    <p>Cachez un message secret dans une image en utilisant la stéganographie et le chiffrement AES.</p>
+                    <a href="{% url 'steganography:encrypt_message' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> Commencer
+                    </a>
+                </div>
+                
+                <div class="dashboard-card animate-slide-up" style="animation-delay: 0.4s;">
+                    <i class="fas fa-unlock"></i>
+                    <h3>Déchiffrer un message</h3>
+                    <p>Extrayez et déchiffrez un message caché dans une image.</p>
+                    <a href="{% url 'steganography:decrypt_message' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> Commencer
+                    </a>
+                </div>
+                
+                <div class="dashboard-card animate-slide-up" style="animation-delay: 0.6s;">
+                    <i class="fas fa-file-pdf"></i>
+                    <h3>Chiffrer un PDF</h3>
+                    <p>Cachez un document PDF dans une image en utilisant la stéganographie et le chiffrement AES.</p>
+                    <a href="{% url 'steganography:encrypt_pdf' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> Commencer
+                    </a>
+                </div>
+                
+                <div class="dashboard-card animate-slide-up" style="animation-delay: 0.8s;">
+                    <i class="fas fa-file-image"></i>
+                    <h3>Déchiffrer un PDF</h3>
+                    <p>Extrayez et déchiffrez un document PDF caché dans une image.</p>
+                    <a href="{% url 'steganography:decrypt_pdf' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> Commencer
+                    </a>
+                </div>
+            </div>
+            
+            <div class="info-box animate-slide-up" style="animation-delay: 1s; margin-top: 2rem;">
+                <h4><i class="fas fa-shield-alt"></i> Sécurité de niveau</h4>
+                <ul>
+                    <li>Chiffrement AES-256 de niveau militaire</li>
+                    <li>Stéganographie avancée indétectable</li>
+                    <li>Protection complète de vos données sensibles</li>
+                    <li>Historique sécurisé de vos opérations</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animation des cartes au survol
+        const dashboardCards = document.querySelectorAll('.dashboard-card');
+        
+        dashboardCards.forEach(card => {
+            card.addEventListener('mouseover', function() {
+                this.style.transform = 'translateY(-15px) scale(1.05)';
+                this.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.4)';
+                this.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+                
+                // Animation de l'icône
+                const icon = this.querySelector('i');
+                icon.style.transform = 'scale(1.2)';
+                icon.style.transition = 'transform 0.3s ease';
+                
+                // Animation du bouton
+                const button = this.querySelector('.btn');
+                button.style.backgroundColor = '#778DA9';
+                button.style.transform = 'scale(1.1)';
+                button.style.transition = 'background-color 0.3s ease, transform 0.3s ease';
+            });
+            
+            card.addEventListener('mouseout', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                this.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.3)';
+                
+                // Réinitialisation de l'icône
+                const icon = this.querySelector('i');
+                icon.style.transform = 'scale(1)';
+                
+                // Réinitialisation du bouton
+                const button = this.querySelector('.btn');
+                button.style.backgroundColor = '';
+                button.style.transform = 'scale(1)';
+            });
+        });
+        
+        // Animation du titre
+        const title = document.querySelector('.card-header h2');
+        title.innerHTML = title.textContent.split('').map(letter => 
+            `<span style="display: inline-block;">${letter}</span>`
+        ).join('');
+        
+        const letters = title.querySelectorAll('span');
+        letters.forEach((letter, index) => {
+            letter.style.animation = `fadeIn 0.5s ease forwards`;
+            letter.style.animationDelay = `${index * 0.05}s`;
+            letter.style.opacity = '0';
+        });
+    });
+</script>
+{% endblock %}
+

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Message déchiffré - SecureWatermark{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card animate-slide-up">
+        <div class="card-header">
+            <h2><i class="fas fa-check-circle"></i> Message déchiffré avec succès</h2>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-success">
+                <i class="fas fa-unlock-alt"></i> Le message caché a été extrait et déchiffré avec succès.
+            </div>
+            
+            <div class="result-container">
+                <div class="result-item">
+                    <h3>Image source</h3>
+                    <div class="image-container">
+                        <img src="data:image/png;base64,{{ image }}" alt="Image source" class="result-image">
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <h3>Message déchiffré</h3>
+                    <div class="message-container">
+                        <div class="message-content">
+                            {{ message|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="copy-message" class="btn btn-primary">
+                    <i class="fas fa-copy"></i> Copier le message
+                </button>
+                <a href="{% url 'steganography:decrypt_message' %}" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> Déchiffrer un autre message
+                </a>
+                <a href="{% url 'steganography:dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> Retour au tableau de bord
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const copyButton = document.getElementById('copy-message');
+        const messageContent = document.querySelector('.message-content').innerText;
+        
+        copyButton.addEventListener('click', function() {
+            // Création d'un élément textarea temporaire
+            const textarea = document.createElement('textarea');
+            textarea.value = messageContent;
+            document.body.appendChild(textarea);
+            
+            // Sélection et copie du texte
+            textarea.select();
+            document.execCommand('copy');
+            
+            // Suppression de l'élément temporaire
+            document.body.removeChild(textarea);
+            
+            // Feedback visuel
+            const originalText = copyButton.innerHTML;
+            copyButton.innerHTML = '<i class="fas fa-check"></i> Message copié!';
+            
+            setTimeout(function() {
+                copyButton.innerHTML = originalText;
+            }, 2000);
+        });
+    });
+</script>
+{% endblock %}
+

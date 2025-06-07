@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Chiffrer un PDF - SecureWatermark{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-file-pdf"></i> Chiffrer un PDF</h1>
+        <p class="page-description">Cachez un document PDF dans une image en utilisant la stéganographie et le chiffrement AES.</p>
+    </div>
+    
+    <div class="row">
+        <div class="col">
+            <div class="card animate-slide-up">
+                <div class="card-header">
+                    <h3>Chiffrement de PDF</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label for="pdf" class="form-label">Document PDF à cacher</label>
+                            <div class="file-upload">
+                                <input type="file" id="pdf" name="pdf" accept="application/pdf" required>
+                                <label for="pdf" class="file-label" data-default="Choisir un fichier PDF">Choisir un fichier PDF</label>
+                            </div>
+                            <small class="form-text text-muted">Taille maximale: 5 MB. Pour des fichiers plus volumineux, envisagez de les compresser d'abord.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="image" class="form-label">Image de couverture</label>
+                            <div class="file-upload">
+                                <input type="file" id="image" name="image" accept="image/*" required>
+                                <label for="image" class="file-label" data-default="Choisir une image">Choisir une image</label>
+                            </div>
+                            <small class="form-text text-muted">Formats supportés: JPG, PNG, BMP. L'image doit être suffisamment grande pour contenir le PDF.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password" class="form-label">Mot de passe de chiffrement</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-key"></i>
+                                <input type="password" id="password" name="password" class="form-control" placeholder="Mot de passe pour chiffrer le PDF" required>
+                            </div>
+                            <small class="form-text text-muted">Ce mot de passe sera nécessaire pour déchiffrer le PDF ultérieurement.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-lock"></i> Chiffrer et cacher le PDF
+                            </button>
+                            <a href="{% url 'steganography:dashboard' %}" class="btn btn-outline">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col">
+            <div class="card animate-slide-up">
+                <div class="card-header">
+                    <h3>Comment ça fonctionne</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-section">
+                        <h4><i class="fas fa-shield-alt"></i> Protection de documents</h4>
+                        <p>Cette fonctionnalité est idéale pour protéger des documents confidentiels comme des contrats, des rapports financiers ou des documents juridiques.</p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h4><i class="fas fa-cogs"></i> Processus</h4>
+                        <p>Le document PDF est d'abord chiffré avec AES, puis les données chiffrées sont cachées dans l'image en utilisant la stéganographie.</p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h4><i class="fas fa-image"></i> Taille de l'image</h4>
+                        <p>La taille de l'image de couverture doit être proportionnelle à la taille du PDF. Plus le PDF est volumineux, plus l'image doit être grande.</p>
+                        <p>Règle approximative: une image de 1024x1024 pixels peut contenir environ 100 KB de données.</p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h4><i class="fas fa-info-circle"></i> Conseils</h4>
+                        <ul>
+                            <li>Utilisez des images de haute résolution pour les PDF volumineux.</li>
+                            <li>Compressez votre PDF si possible avant de le cacher.</li>
+                            <li>Conservez votre mot de passe dans un endroit sûr.</li>
+                            <li>Évitez de modifier l'image résultante, car cela pourrait corrompre les données cachées.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

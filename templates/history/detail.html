@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Détails de l'opération - SecureWatermark{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card animate-slide-up">
+        <div class="card-header">
+            <h2><i class="fas fa-info-circle"></i> DÉTAILS DE L'OPÉRATION</h2>
+        </div>
+        <div class="card-body">
+            <div class="operation-details">
+                <div class="operation-header animate-slide-up" style="animation-delay: 0.2s;">
+                    {% if operation.operation_type == 'encrypt_message' %}
+                        <div class="operation-icon encrypt">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3>Chiffrement de message</h3>
+                    {% elif operation.operation_type == 'decrypt_message' %}
+                        <div class="operation-icon decrypt">
+                            <i class="fas fa-unlock"></i>
+                        </div>
+                        <h3>Déchiffrement de message</h3>
+                    {% elif operation.operation_type == 'encrypt_pdf' %}
+                        <div class="operation-icon encrypt">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <h3>Chiffrement de PDF</h3>
+                    {% elif operation.operation_type == 'decrypt_pdf' %}
+                        <div class="operation-icon decrypt">
+                            <i class="fas fa-file-image"></i>
+                        </div>
+                        <h3>Déchiffrement de PDF</h3>
+                    {% endif %}
+                </div>
+                
+                <div class="operation-info animate-slide-up" style="animation-delay: 0.3s;">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Date</div>
+                            <div class="info-value">{{ operation.created_at|date:"d/m/Y H:i" }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Fichier</div>
+                            <div class="info-value">{{ operation.file_name }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Taille</div>
+                            <div class="info-value">{{ operation.file_size|filesizeformat }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Statut</div>
+                            <div class="info-value">
+                                {% if operation.is_successful %}
+                                    <span class="status-badge success">
+                                        <i class="fas fa-check-circle"></i> Réussi
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge error">
+                                        <i class="fas fa-times-circle"></i> Échoué
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="operation-images animate-slide-up" style="animation-delay: 0.4s;">
+                    {% if original_image %}
+                        <div class="image-container">
+                            <h4>Image originale</h4>
+                            <div class="image-wrapper">
+                                <img src="data:image/png;base64,{{ original_image }}" alt="Image originale" class="detail-image">
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if result_image %}
+                        <div class="image-container">
+                            <h4>Image résultante</h4>
+                            <div class="image-wrapper">
+                                <img src="data:image/png;base64,{{ result_image }}" alt="Image résultante" class="detail-image">
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="operation-actions animate-slide-up" style="animation-delay: 0.5s;">
+                    {% if operation.result_file %}
+                        {% if operation.operation_type == 'decrypt_pdf' %}
+                            <a href="{% url 'steganography:download_pdf' operation.id %}" class="btn btn-primary">
+                                <i class="fas fa-download"></i> Télécharger le PDF
+                            </a>
+                        {% else %}
+                            <a href="{% url 'steganography:download_result' operation.id %}" class="btn btn-primary">
+                                <i class="fas fa-download"></i> Télécharger le résultat
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                    
+                    <a href="{% url 'history:delete' operation.id %}" class="btn btn-secondary">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </a>
+                    
+                    <a href="{% url 'history:history' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour à l'historique
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .operation-details {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    
+    .operation-header {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(119, 141, 169, 0.2);
+    }
+    
+    .operation-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+    }
+    
+    .operation-icon.encrypt {
+        background-color: rgba(46, 204, 113, 0.2);
+        color: #2ecc71;
+        border: 2px solid rgba(46, 204, 113, 0.3);
+    }
+    
+    .operation-icon.decrypt {
+        background-color: rgba(52, 152, 219, 0.2);
+        color: #3498db;
+        border: 2px solid rgba(52, 152, 219, 0.3);
+    }
+    
+    .operation-header h3 {
+        font-size: 2rem;
+        color: var(--highlight-color);
+        margin: 0;
+    }
+    
+    .operation-info {
+        background-color: var(--secondary-color);
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .info-label {
+        font-size: 0.9rem;
+        color: var(--highlight-color);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .info-value {
+        font-size: 1.1rem;
+        color: var(--text-color);
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .status-badge.success {
+        background-color: rgba(46, 204, 113, 0.2);
+        color: #2ecc71;
+        border: 1px solid rgba(46, 204, 113, 0.3);
+    }
+    
+    .status-badge.error {
+        background-color: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+        border: 1px solid rgba(231, 76, 60, 0.3);
+    }
+    
+    .operation-images {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .image-container {
+        flex: 1;
+        min-width: 300px;
+    }
+    
+    .image-container h4 {
+        color: var(--highlight-color);
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+    
+    .image-wrapper {
+        background-color: var(--secondary-color);
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+    }
+    
+    .detail-image {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 5px;
+    }
+    
+    .operation-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    
+    @media (max-width: 768px) {
+        .operation-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+        
+        .operation-images {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animation des images au chargement
+        const images = document.querySelectorAll('.detail-image');
+        images.forEach(image => {
+            image.style.opacity = '0';
+            image.style.transform = 'scale(0.9)';
+            image.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            // Animation une fois l'image chargée
+            image.onload = function() {
+                image.style.opacity = '1';
+                image.style.transform = 'scale(1)';
+            };
+        });
+        
+        // Animation de l'icône d'opération
+        const operationIcon = document.querySelector('.operation-icon');
+        if (operationIcon) {
+            operationIcon.style.transform = 'scale(0)';
+            operationIcon.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            
+            setTimeout(() => {
+                operationIcon.style.transform = 'scale(1)';
+            }, 300);
+        }
+        
+        // Animation des boutons d'action
+        const actionButtons = document.querySelectorAll('.operation-actions .btn');
+        actionButtons.forEach((button, index) => {
+            button.style.opacity = '0';
+            button.style.transform = 'translateY(20px)';
+            button.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            button.style.transitionDelay = `${0.6 + index * 0.1}s`;
+            
+            setTimeout(() => {
+                button.style.opacity = '1';
+                button.style.transform = 'translateY(0)';
+            }, 100);
+        });
+        
+        // Effet de zoom sur les images
+        const imageWrappers = document.querySelectorAll('.image-wrapper');
+        imageWrappers.forEach(wrapper => {
+            wrapper.addEventListener('mouseover', function() {
+                const image = this.querySelector('img');
+                image.style.transform = 'scale(1.05)';
+                image.style.transition = 'transform 0.3s ease';
+            });
+            
+            wrapper.addEventListener('mouseout', function() {
+                const image = this.querySelector('img');
+                image.style.transform = 'scale(1)';
+            });
+        });
+    });
+</script>
+{% endblock %}
+

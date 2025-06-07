@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Déchiffrer un PDF - SecureWatermark{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-file-image"></i> Déchiffrer un PDF</h1>
+        <p class="page-description">Extrayez et déchiffrez un document PDF caché dans une image.</p>
+    </div>
+    
+    <div class="row">
+        <div class="col">
+            <div class="card animate-slide-up">
+                <div class="card-header">
+                    <h3>Déchiffrement de PDF</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label for="image" class="form-label">Image contenant le PDF</label>
+                            <div class="file-upload">
+                                <input type="file" id="image" name="image" accept="image/*" required>
+                                <label for="image" class="file-label" data-default="Choisir une image">Choisir une image</label>
+                            </div>
+                            <small class="form-text text-muted">Sélectionnez l'image dans laquelle un PDF a été caché.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password" class="form-label">Mot de passe de déchiffrement</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-key"></i>
+                                <input type="password" id="password" name="password" class="form-control" placeholder="Mot de passe utilisé lors du chiffrement" required>
+                            </div>
+                            <small class="form-text text-muted">Entrez le mot de passe utilisé lors du chiffrement du PDF.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-unlock"></i> Extraire et déchiffrer le PDF
+                            </button>
+                            <a href="{% url 'steganography:dashboard' %}" class="btn btn-outline">Annuler</a>
+                        </div>
+                    </form>
+                    
+                    {% if pdf_url %}
+                    <div class="result-section animate-fade-in">
+                        <h4>PDF déchiffré</h4>
+                        <div class="pdf-preview">
+                            <div class="pdf-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <p>Le PDF a été extrait et déchiffré avec succès.</p>
+                            <a href="{{ pdf_url }}" class="btn btn-success" download>
+                                <i class="fas fa-download"></i> Télécharger le PDF
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col">
+            <div class="card animate-slide-up">
+                <div class="card-header">
+                    <h3>Comment ça fonctionne</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-section">
+                        <h4><i class="fas fa-search"></i> Extraction</h4>
+                        <p>Le système analyse l'image pour détecter les données cachées dans les bits les moins significatifs.</p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h4><i class="fas fa-unlock-alt"></i> Déchiffrement</h4>
+                        <p>Une fois les données extraites, le système utilise votre mot de passe pour déchiffrer le document PDF avec l'algorithme AES.</p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Important</h4>
+                        <p>Si le mot de passe est incorrect ou si l'image ne contient pas de PDF caché, le déchiffrement échouera.</p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h4><i class="fas fa-info-circle"></i> Conseils</h4>
+                        <ul>
+                            <li>Assurez-vous d'utiliser exactement le même mot de passe que celui utilisé lors du chiffrement.</li>
+                            <li>L'image ne doit pas avoir été modifiée ou compressée après le chiffrement.</li>
+                            <li>Si vous rencontrez des erreurs, vérifiez que vous utilisez la bonne image et le bon mot de passe.</li>
+                            <li>Téléchargez immédiatement le PDF déchiffré, car il pourrait être supprimé du serveur après un certain temps.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
